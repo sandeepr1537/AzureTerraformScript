@@ -1,0 +1,45 @@
+name: Terraform Deploy
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.0
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Initialize Terraform
+        run: terraform init
+
+      - name: Apply Terraform
+        run: terraform apply -auto-approve
+
+      - name: Output Policy Definition ID
+        run: echo "Policy Definition ID: $(terraform output policy_definition_id)"
+
+      - name: Output Principal ID
+        run: echo "Principal ID: $(terraform output principal_id)"
+
+      - name: Output Assigned Policy Definition ID
+        run: echo "Assigned Policy Definition ID: $(terraform output assigned_policy_definition_id)"
+
+      - name: Output Role Assignment Principal ID
+        run: echo "Role Assignment Principal ID: $(terraform output role_assignment_principal_id)"
